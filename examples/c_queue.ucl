@@ -45,6 +45,7 @@ module common {
     const bvZero: cint_t = 0bv32;
     const bvOne: cint_t  = 1bv32;
     const bvTen: cint_t  = 10bv32;
+    const bvThousand: cint_t  = 1000bv32;
     const INT_MIN: cint_t = 0x80000000bv32;
 
     // ========================================================================================= //
@@ -313,6 +314,7 @@ module program {
             // queue->front = (queue->front + 1) % queue->capacity;
             call setQueueFieldFront(queue, modulo(getQueueFieldFront(queue) + bvOne, getQueueFieldCapacity(queue)));
             // queue->size = queue->size - 1;
+            call setQueueFieldSize(queue, getQueueFieldSize(queue) - bvOne);
         }
     }
      
@@ -383,20 +385,9 @@ module main {
     init {
         step = 0bv32;
         op_in = createQueueOp;
-        capacity_in = bvOne;
     }
 
     var step: bv32;
-
-    next {
-        step' = step + 1bv32;
-        // After first iteration, we check if the size is empty
-        op_in' = rearOp;
-        qptr_in' = bvZero;
-        next(p);
-    }
-
-    invariant firstIsEmpty: ((step > 1bv32) ==> p.item_out == INT_MIN);
 
     instance p: program(op_in: (op_in),
                         capacity_in: (capacity_in),
@@ -404,11 +395,104 @@ module main {
                         item_in: (item_in),
                         item_out: (item_out),
                         qptr_out: (qptr_out));
+}
+
+// Prove BMC properties
+// module main {
+//     // Item out is 1 because isEmpty returns 1
+//     invariant firstIsEmpty: ((step > 1bv32) ==> p.item_out == bvOne);
+    
+//     next {
+//         step' = step + 1bv32;
+//         // After first iteration, we check if the size is empty
+//         op_in' = isEmptyOp;
+//         qptr_in' = bvZero;
+//         next(p);
+//     }
+
+//     control {
+//         v = bmc(2);
+//         check;
+//         print_results;
+//         v.print_cex(p.queue_heap[0bv32].size, p.op_in, p.item_out, step);
+//     }
+// }
+
+module main {
+    // Restrict the allocation amount to 10
+    axiom (bvZero <= p.queue_end && p.queue_end < bvThousand);
+    axiom (bvZero <= p.cint_end && p.cint_end < bvThousand);
+    // Capacity is always positive
+    axiom (bvZero < capacity_in && capacity_in < bvTen);
+
+    // The capacity is always between 0 and 10 for all queues
+    invariant capacity_bound:
+        (forall (qptr: queue_pointer_t) ::
+            ((p.queue_start <= qptr && qptr < p.queue_end) ==>
+                (bvZero <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= bvTen)));
+    
+    // For all valid queues, we have the invariant (front + size + capacity - 1 % capacity) == rear
+    invariant size_inv:
+        forall (qptr: queue_pointer_t) ::
+            ((p.queue_start <= qptr && qptr < p.queue_end) ==>
+                (modulo(p.queue_heap[qptr].front + p.queue_heap[qptr].size + p.queue_heap[qptr].capacity - bvOne, p.queue_heap[qptr].capacity) == p.queue_heap[qptr].rear));
+    
+    // All valid queues have a size between 0 and the capacity
+    invariant size_in_bounds:
+        (forall (qptr: queue_pointer_t) ::
+            ((p.queue_start <= qptr && qptr < p.queue_end) ==>
+                (bvZero <= p.queue_heap[qptr].size && p.queue_heap[qptr].size <= p.queue_heap[qptr].capacity)));
+
+    // All valid queues have a front between 0 and the capacity (exclusive)
+    invariant front_in_bounds:
+        (forall (qptr: queue_pointer_t) ::
+            ((p.queue_start <= qptr && qptr < p.queue_end) ==>
+                (bvZero <= p.queue_heap[qptr].front && p.queue_heap[qptr].front < p.queue_heap[qptr].capacity)));
+
+    // All valid queues have a rear between 0 and the capacity (exclusive)
+    invariant rear_in_bounds:
+        (forall (qptr: queue_pointer_t) ::
+            ((p.queue_start <= qptr && qptr < p.queue_end) ==>
+                (bvZero <= p.queue_heap[qptr].rear && p.queue_heap[qptr].rear < p.queue_heap[qptr].capacity)));
+
+    // The beginning of the heaps are always less than the end
+    invariant cint_heap_start_end: (p.cint_start <= p.cint_end);
+    invariant queue_heap_start_end: (p.queue_start <= p.queue_end);
+
+    next {
+        step' = step + 1bv32;
+        next(p);
+    }
 
     control {
-        v = bmc(2);
+        v = induction(1);
         check;
         print_results;
-        v.print_cex(p.queue_heap[0bv32].size, p.op_in, p.item_out);
+        v.print_cex(
+            step,
+            p.queue_start,
+            p.queue_end,
+            p.op_in, p.qptr_in, p.capacity_in, p.item_out,
+            p.queue_heap[bvZero].size, p.queue_heap[bvZero].front, p.queue_heap[bvZero].rear, p.queue_heap[bvZero].capacity);
     }
 }
+
+// Prove inductive properties
+// module main {
+//     axiom (forall (qptr: queue_pointer_t) :: (0bv32 <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= 100bv32));
+
+//     invariant size_inv:
+//         ((step > 1bv32) ==>
+//             (modulo(p.queue_heap[0bv32].front + p.queue_heap[0bv32].size + p.queue_heap[0bv32].capacity - bvOne, p.queue_heap[0bv32].capacity) == p.queue_heap[0bv32].rear));
+    
+//     next {
+//         next(p);
+//     }
+
+//     control {
+//         v = induction(1);
+//         check;
+//         print_results;
+//         v.print_cex(p.queue_heap[0bv32].front, p.queue_heap[0bv32].rear, p.queue_heap[0bv32].size, p.queue_heap[0bv32].capacity, p.queue_heap[0bv32].array);
+//     }
+// }
