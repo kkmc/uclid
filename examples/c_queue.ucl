@@ -1,0 +1,414 @@
+/* C program for array implementation of queue
+ */
+
+// Common module containing types and constants
+module common {
+    // ========================================================================================= //
+    // TYPES
+
+    // C integer type
+    type cint_t = bv32;
+    // C integer pointer type 
+    type cint_pointer_t = bv32;
+
+    /* A structure to represent a queue
+    struct Queue {
+        int front, rear, size;
+        unsigned capacity;
+        int* array;
+    };
+    */
+    type queue_t = record {
+        front: cint_t,
+        rear: cint_t,
+        size: cint_t,
+        capacity: cint_t,
+        array: cint_pointer_t
+    };
+    // queue pointer type
+    type queue_pointer_t = bv32;
+
+    // Operations of the program
+    type op_t = enum {
+        createQueueOp,
+        isFullOp,
+        isEmptyOp,
+        enqueueOp,
+        dequeueOp,
+        frontOp,
+        rearOp
+    };
+
+    // ========================================================================================= //
+    // CONSTANTS
+
+    const bvZero: cint_t = 0bv32;
+    const bvOne: cint_t  = 1bv32;
+    const bvTen: cint_t  = 10bv32;
+    const INT_MIN: cint_t = 0x80000000bv32;
+
+    // ========================================================================================= //
+    // DEFINE MACROS
+
+    // Returns the value x % y
+    define modulo(x: cint_t, y: cint_t): cint_t = x - y * (x / y);
+}
+
+module program {
+    // ========================================================================================= //
+    // IMPORT STATEMENTS
+    const * = common.*;
+    type * = common.*;
+    define * = common.*;
+
+    // ========================================================================================= //
+    // MEMORY MODEL
+
+    // Starting and end of the heap in memory
+    var cint_start, cint_end: cint_pointer_t;
+    // Heap for c integers
+    var cint_heap: [cint_pointer_t]cint_t;
+
+    // Starting and end of queues in memory
+    var queue_start, queue_end: cint_pointer_t;
+    // Heap for queues
+    var queue_heap: [queue_pointer_t]queue_t;
+
+    // ========================================================================================= //
+    // HELPER FUNCTIONS
+
+    // Malloc instruction for c integer arrays
+    procedure malloc_cint_array(len: cint_t)
+        returns (res: cint_pointer_t)
+    {
+        res = cint_end;
+        cint_end = cint_end + len;
+    }
+
+    // Malloc instruction for queue
+    procedure malloc_queue()
+        returns (res: queue_pointer_t)
+    {
+        res = queue_end;
+        queue_end = queue_end + bvOne;
+    }
+
+    // Queue field setters
+    procedure [inline] setQueueFieldFront(qptr: queue_pointer_t, _front: cint_t) {
+        var tmp_q: queue_t;
+        tmp_q = queue_heap[qptr];
+        tmp_q.front = _front;
+        queue_heap[qptr] = tmp_q;
+    }
+    procedure [inline] setQueueFieldRear(qptr: queue_pointer_t, _rear: cint_t) {
+        var tmp_q: queue_t;
+        tmp_q = queue_heap[qptr];
+        tmp_q.rear = _rear;
+        queue_heap[qptr] = tmp_q;
+    }
+    procedure [inline] setQueueFieldSize(qptr: queue_pointer_t, _size: cint_t) {
+        var tmp_q: queue_t;
+        tmp_q = queue_heap[qptr];
+        tmp_q.size = _size;
+        queue_heap[qptr] = tmp_q;
+    }
+    procedure [inline] setQueueFieldCapacity(qptr: queue_pointer_t, _capacity: cint_t) {
+        var tmp_q: queue_t;
+        tmp_q = queue_heap[qptr];
+        tmp_q.capacity = _capacity;
+        queue_heap[qptr] = tmp_q;
+    }
+    procedure [inline] setQueueFieldArray(qptr: queue_pointer_t, _array: cint_pointer_t) {
+        var tmp_q: queue_t;
+        tmp_q = queue_heap[qptr];
+        tmp_q.array = _array;
+        queue_heap[qptr] = tmp_q;
+    }
+    procedure [inline] setQueueFieldArrayIthElement(qptr: queue_pointer_t, i: cint_pointer_t, value: cint_t) {
+        call setCIntArrayIth(queue_heap[qptr].array, i, value);
+    }
+
+    // Queue field getters
+    define getQueueFieldFront(ptr: queue_pointer_t): cint_t    = queue_heap[ptr].front;
+    define getQueueFieldRear(ptr: queue_pointer_t): cint_t     = queue_heap[ptr].rear;
+    define getQueueFieldSize(ptr: queue_pointer_t): cint_t     = queue_heap[ptr].size;
+    define getQueueFieldCapacity(ptr: queue_pointer_t): cint_t = queue_heap[ptr].capacity;
+    define getQueueFieldArray(ptr: queue_pointer_t): cint_t    = queue_heap[ptr].array;
+
+    // Return the i-th value of the array
+    define getCIntArrayIth(ptr: cint_pointer_t, i: cint_pointer_t): cint_t = cint_heap[ptr+i];
+
+    // Set the i-th value of an array
+    procedure [inline] setCIntArrayIth(ptr: cint_pointer_t, i: cint_pointer_t, value: cint_t) {
+        cint_heap[ptr + i] = value;
+    }
+
+    // ========================================================================================= //
+    // INITIALIZATION
+
+    init {
+        // Initialize cint heap start and end
+        cint_start = bvZero;
+        cint_end = bvZero;
+
+        // Initialize queue heap start and end
+        queue_start = bvZero;
+        queue_end = bvZero;
+    }
+
+    // ========================================================================================= //
+    // INPUTS
+    input op_in: op_t;
+    input capacity_in: cint_t;
+    input qptr_in: queue_pointer_t;
+    input item_in: cint_t;
+
+
+    // ========================================================================================= //
+    // OUTPUTS
+    output qptr_out: queue_pointer_t;
+    output item_out: cint_t;
+
+    // ========================================================================================= //
+    // PROGRAM TRANSITION RELATION
+    next {
+        case
+            (op_in == createQueueOp) : { call (qptr_out') = queue_createQueue(capacity_in); }
+            (op_in == isFullOp)      : { call (item_out') = queue_isFull(qptr_in); }
+            (op_in == isEmptyOp)     : { call (item_out') = queue_isEmpty(qptr_in); }
+            (op_in == enqueueOp)     : { call ()          = queue_enqueue(qptr_in, item_in); }
+            (op_in == dequeueOp)     : { call (item_out') = queue_dequeue(qptr_in); }
+            (op_in == frontOp)       : { call (item_out') = queue_front(qptr_in); }
+            (op_in == rearOp)        : { call (item_out') = queue_rear(qptr_in); }
+        esac
+    }
+
+    // ========================================================================================= //
+    // C PROGRAM FUNCTIONS
+
+    /* Function to create a queue
+       of given capacity.
+       It initializes size of queue as 0
+    struct Queue* createQueue(unsigned capacity)
+    {
+        struct Queue* queue = (struct Queue*)malloc(
+            sizeof(struct Queue));
+        queue->capacity = capacity;
+        queue->front = queue->size = 0;
+     
+        // This is important, see the enqueue
+        queue->rear = capacity - 1;
+        queue->array = (int*)malloc(
+            queue->capacity * sizeof(int));
+        return queue;
+    }
+    */
+    procedure queue_createQueue(_capacity: cint_t)
+        returns (qptr: queue_pointer_t)
+    {
+        var tmp_array_ptr: cint_pointer_t;
+
+        // Allocate the queue
+        call (qptr) = malloc_queue();
+
+        // queue->capacity = capacity;
+        call setQueueFieldCapacity(qptr, _capacity);
+        // queue->front = queue->size = 0;
+        call setQueueFieldFront(qptr, bvZero);
+        call setQueueFieldSize(qptr, bvZero);
+        
+        // This is important, see the enqueue
+        // queue->rear = capacity - 1;
+        call setQueueFieldRear(qptr, _capacity - bvOne);
+        // queue->array = (int*)malloc(queue->capacity * sizeof(int));
+        call (tmp_array_ptr) = malloc_cint_array(_capacity);
+        call setQueueFieldArray(qptr, tmp_array_ptr);
+
+        // return queue;
+        // Result is stored in qptr which is returned in this procedure
+    }
+     
+    /* Queue is full when size becomes
+       equal to the capacity
+    int isFull(struct Queue* queue)
+    {
+        return (queue->size == queue->capacity);
+    }
+    */
+    procedure queue_isFull(queue: queue_pointer_t)
+        returns (res: cint_t)
+    {
+        res = if (getQueueFieldSize(queue) == getQueueFieldCapacity(queue)) then (bvOne) else (bvZero);
+    }
+     
+    /* Queue is empty when size is 0
+    int isEmpty(struct Queue* queue)
+    {
+        return (queue->size == 0);
+    }
+    */
+    procedure queue_isEmpty(queue: queue_pointer_t)
+        returns (res: cint_t)
+    {
+        res = if (getQueueFieldSize(queue) == bvZero) then (bvOne) else (bvZero);
+    }
+     
+    /* Function to add an item to the queue.
+       It changes rear and size
+    void enqueue(struct Queue* queue, int item)
+    {
+        if (isFull(queue))
+            return;
+        queue->rear = (queue->rear + 1)
+                      % queue->capacity;
+        queue->array[queue->rear] = item;
+        queue->size = queue->size + 1;
+        printf("%d enqueued to queue\n", item);
+    }*/
+    procedure queue_enqueue(queue: queue_pointer_t, item: cint_t) {
+        // if (isFull(queue))
+        //     return;
+        var tmpIsFull: cint_t;
+        call (tmpIsFull) = queue_isFull(queue);
+        if (tmpIsFull == bvOne) {
+            // Return
+        } else {
+            // queue->rear = (queue->rear + 1) % queue->capacity;
+            call setQueueFieldRear(queue, modulo(getQueueFieldRear(queue) + bvOne, getQueueFieldCapacity(queue)));
+            // queue->array[queue->rear] = item;
+            call setQueueFieldArrayIthElement(queue, getQueueFieldRear(queue), item);
+            // queue->size = queue->size + 1;
+            call setQueueFieldSize(queue, getQueueFieldSize(queue) + bvOne);
+        }
+    }
+     
+
+    /* Function to remove an item from queue.
+       It changes front and size
+    int dequeue(struct Queue* queue)
+    {
+        if (isEmpty(queue))
+            return INT_MIN;
+        int item = queue->array[queue->front];
+        queue->front = (queue->front + 1)
+                       % queue->capacity;
+        queue->size = queue->size - 1;
+        return item;
+    }
+    */
+    procedure queue_dequeue(queue: queue_pointer_t)
+        returns (item: cint_t)
+    {
+        // if (isEmpty(queue))
+        //     return INT_MIN;
+        var tmpIsEmpty: cint_t;
+        call (tmpIsEmpty) = queue_isEmpty(queue);
+        if (tmpIsEmpty == bvOne) {
+            // Return INT_MIN
+            item = INT_MIN;
+        } else {
+            // int item = queue->array[queue->front];
+            // return item;
+            item = getCIntArrayIth(getQueueFieldArray(queue), getQueueFieldFront(queue));
+            // queue->front = (queue->front + 1) % queue->capacity;
+            call setQueueFieldFront(queue, modulo(getQueueFieldFront(queue) + bvOne, getQueueFieldCapacity(queue)));
+            // queue->size = queue->size - 1;
+        }
+    }
+     
+    /* Function to get front of queue
+    int front(struct Queue* queue)
+    {
+        if (isEmpty(queue))
+            return INT_MIN;
+        return queue->array[queue->front];
+    }
+    */
+    procedure queue_front(queue: queue_pointer_t)
+        returns (item: cint_t)
+    {
+        // if (isEmpty(queue))
+        var tmpIsEmpty: cint_t;
+        call (tmpIsEmpty) = queue_isEmpty(queue);
+        if (tmpIsEmpty == bvOne) {
+            // return INT_MIN;
+            item = INT_MIN;
+        } else {
+            // return queue->array[queue->front];
+            item = getCIntArrayIth(getQueueFieldArray(queue), getQueueFieldFront(queue));
+        }
+    }
+     
+    /* Function to get rear of queue
+    int rear(struct Queue* queue)
+    {
+        if (isEmpty(queue))
+            return INT_MIN;
+        return queue->array[queue->rear];
+    }
+    */
+    procedure queue_rear(queue: queue_pointer_t)
+        returns (item: cint_t)
+    {
+        // if (isEmpty(queue))
+        var tmpIsEmpty: cint_t;
+        call (tmpIsEmpty) = queue_isEmpty(queue);
+        if (tmpIsEmpty == bvOne) {
+            // return INT_MIN;
+            item = INT_MIN;
+        } else {
+            // return queue->array[queue->front];
+            item = getCIntArrayIth(getQueueFieldArray(queue), getQueueFieldRear(queue));
+        }
+    }
+}
+
+module main {
+    // ========================================================================================= //
+    // IMPORT STATEMENTS
+    const * = common.*;
+    type * = common.*;
+    define * = common.*;
+
+    var op_in: op_t;
+    var capacity_in: cint_t;
+    var qptr_in: queue_pointer_t;
+    var item_in: cint_t;
+
+    var item_out: cint_t;
+    var qptr_out: queue_pointer_t;
+
+    var qptr: queue_pointer_t;
+
+    init {
+        step = 0bv32;
+        op_in = createQueueOp;
+        capacity_in = bvOne;
+    }
+
+    var step: bv32;
+
+    next {
+        step' = step + 1bv32;
+        // After first iteration, we check if the size is empty
+        op_in' = rearOp;
+        qptr_in' = bvZero;
+        next(p);
+    }
+
+    invariant firstIsEmpty: ((step > 1bv32) ==> p.item_out == INT_MIN);
+
+    instance p: program(op_in: (op_in),
+                        capacity_in: (capacity_in),
+                        qptr_in: (qptr_in),
+                        item_in: (item_in),
+                        item_out: (item_out),
+                        qptr_out: (qptr_out));
+
+    control {
+        v = bmc(2);
+        check;
+        print_results;
+        v.print_cex(p.queue_heap[0bv32].size, p.op_in, p.item_out);
+    }
+}
