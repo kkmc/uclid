@@ -7,9 +7,9 @@ module common {
     // TYPES
 
     // C integer type
-    type cint_t = bv32;
+    type cint_t = integer;
     // C integer pointer type 
-    type cint_pointer_t = bv32;
+    type cint_pointer_t = integer;
 
     /* A structure to represent a queue
     struct Queue {
@@ -26,7 +26,7 @@ module common {
         array: cint_pointer_t
     };
     // queue pointer type
-    type queue_pointer_t = bv32;
+    type queue_pointer_t = integer;
 
     // Operations of the program
     type op_t = enum {
@@ -42,11 +42,11 @@ module common {
     // ========================================================================================= //
     // CONSTANTS
 
-    const bvZero: cint_t = 0bv32;
-    const bvOne: cint_t  = 1bv32;
-    const bvTen: cint_t  = 10bv32;
-    const bvThousand: cint_t  = 1000bv32;
-    const INT_MIN: cint_t = 0x80000000bv32;
+    const ZERO: cint_t = 0;
+    const ONE: cint_t  = 1;
+    const TEN: cint_t  = 10;
+    const THOUSAND: cint_t  = 1000;
+    const INT_MIN: cint_t = 0x80000000;
 
     // ========================================================================================= //
     // DEFINE MACROS
@@ -91,7 +91,7 @@ module program {
         returns (res: queue_pointer_t)
     {
         res = queue_end;
-        queue_end = queue_end + bvOne;
+        queue_end = queue_end + ONE;
     }
 
     // Queue field setters
@@ -149,12 +149,12 @@ module program {
 
     init {
         // Initialize cint heap start and end
-        cint_start = bvZero;
-        cint_end = bvZero;
+        cint_start = ZERO;
+        cint_end = ZERO;
 
         // Initialize queue heap start and end
-        queue_start = bvZero;
-        queue_end = bvZero;
+        queue_start = ZERO;
+        queue_end = ZERO;
     }
 
     // ========================================================================================= //
@@ -215,12 +215,12 @@ module program {
         // queue->capacity = capacity;
         call setQueueFieldCapacity(qptr, _capacity);
         // queue->front = queue->size = 0;
-        call setQueueFieldFront(qptr, bvZero);
-        call setQueueFieldSize(qptr, bvZero);
+        call setQueueFieldFront(qptr, ZERO);
+        call setQueueFieldSize(qptr, ZERO);
         
         // This is important, see the enqueue
         // queue->rear = capacity - 1;
-        call setQueueFieldRear(qptr, _capacity - bvOne);
+        call setQueueFieldRear(qptr, _capacity - ONE);
         // queue->array = (int*)malloc(queue->capacity * sizeof(int));
         call (tmp_array_ptr) = malloc_cint_array(_capacity);
         call setQueueFieldArray(qptr, tmp_array_ptr);
@@ -239,7 +239,7 @@ module program {
     procedure queue_isFull(queue: queue_pointer_t)
         returns (res: cint_t)
     {
-        res = if (getQueueFieldSize(queue) == getQueueFieldCapacity(queue)) then (bvOne) else (bvZero);
+        res = if (getQueueFieldSize(queue) == getQueueFieldCapacity(queue)) then (ONE) else (ZERO);
     }
      
     /* Queue is empty when size is 0
@@ -251,7 +251,7 @@ module program {
     procedure queue_isEmpty(queue: queue_pointer_t)
         returns (res: cint_t)
     {
-        res = if (getQueueFieldSize(queue) == bvZero) then (bvOne) else (bvZero);
+        res = if (getQueueFieldSize(queue) == ZERO) then (ONE) else (ZERO);
     }
      
     /* Function to add an item to the queue.
@@ -271,15 +271,15 @@ module program {
         //     return;
         var tmpIsFull: cint_t;
         call (tmpIsFull) = queue_isFull(queue);
-        if (tmpIsFull == bvOne) {
+        if (tmpIsFull == ONE) {
             // Return
         } else {
             // queue->rear = (queue->rear + 1) % queue->capacity;
-            call setQueueFieldRear(queue, modulo(getQueueFieldRear(queue) + bvOne, getQueueFieldCapacity(queue)));
+            call setQueueFieldRear(queue, modulo(getQueueFieldRear(queue) + ONE, getQueueFieldCapacity(queue)));
             // queue->array[queue->rear] = item;
             call setQueueFieldArrayIthElement(queue, getQueueFieldRear(queue), item);
             // queue->size = queue->size + 1;
-            call setQueueFieldSize(queue, getQueueFieldSize(queue) + bvOne);
+            call setQueueFieldSize(queue, getQueueFieldSize(queue) + ONE);
         }
     }
      
@@ -304,7 +304,7 @@ module program {
         //     return INT_MIN;
         var tmpIsEmpty: cint_t;
         call (tmpIsEmpty) = queue_isEmpty(queue);
-        if (tmpIsEmpty == bvOne) {
+        if (tmpIsEmpty == ONE) {
             // Return INT_MIN
             item = INT_MIN;
         } else {
@@ -312,9 +312,9 @@ module program {
             // return item;
             item = getCIntArrayIth(getQueueFieldArray(queue), getQueueFieldFront(queue));
             // queue->front = (queue->front + 1) % queue->capacity;
-            call setQueueFieldFront(queue, modulo(getQueueFieldFront(queue) + bvOne, getQueueFieldCapacity(queue)));
+            call setQueueFieldFront(queue, modulo(getQueueFieldFront(queue) + ONE, getQueueFieldCapacity(queue)));
             // queue->size = queue->size - 1;
-            call setQueueFieldSize(queue, getQueueFieldSize(queue) - bvOne);
+            call setQueueFieldSize(queue, getQueueFieldSize(queue) - ONE);
         }
     }
      
@@ -332,7 +332,7 @@ module program {
         // if (isEmpty(queue))
         var tmpIsEmpty: cint_t;
         call (tmpIsEmpty) = queue_isEmpty(queue);
-        if (tmpIsEmpty == bvOne) {
+        if (tmpIsEmpty == ONE) {
             // return INT_MIN;
             item = INT_MIN;
         } else {
@@ -355,7 +355,7 @@ module program {
         // if (isEmpty(queue))
         var tmpIsEmpty: cint_t;
         call (tmpIsEmpty) = queue_isEmpty(queue);
-        if (tmpIsEmpty == bvOne) {
+        if (tmpIsEmpty == ONE) {
             // return INT_MIN;
             item = INT_MIN;
         } else {
@@ -383,11 +383,11 @@ module main {
     var qptr: queue_pointer_t;
 
     init {
-        step = 0bv32;
+        step = 0;
         op_in = createQueueOp;
     }
 
-    var step: bv32;
+    var step: integer;
 
     instance p: program(op_in: (op_in),
                         capacity_in: (capacity_in),
@@ -400,13 +400,13 @@ module main {
 // Prove BMC properties
 // module main {
 //     // Item out is 1 because isEmpty returns 1
-//     invariant firstIsEmpty: ((step > 1bv32) ==> p.item_out == bvOne);
+//     invariant firstIsEmpty: ((step > 1bv32) ==> p.item_out == ONE);
     
 //     next {
 //         step' = step + 1bv32;
 //         // After first iteration, we check if the size is empty
 //         op_in' = isEmptyOp;
-//         qptr_in' = bvZero;
+//         qptr_in' = ZERO;
 //         next(p);
 //     }
 
@@ -418,49 +418,50 @@ module main {
 //     }
 // }
 
+// Prove inductive properties
 module main {
     // Restrict the allocation amount to 10
-    axiom (bvZero <= p.queue_end && p.queue_end < bvThousand);
-    axiom (bvZero <= p.cint_end && p.cint_end < bvThousand);
+    axiom (ZERO <= p.queue_end && p.queue_end < THOUSAND);
+    axiom (ZERO <= p.cint_end && p.cint_end < THOUSAND);
     // Capacity is always positive
-    axiom (bvZero < capacity_in && capacity_in < bvTen);
+    axiom (ZERO < capacity_in && capacity_in < TEN);
 
     // The capacity is always between 0 and 10 for all queues
     invariant capacity_bound:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (bvZero <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= bvTen)));
+                (ZERO <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= TEN)));
     
     // For all valid queues, we have the invariant (front + size + capacity - 1 % capacity) == rear
     invariant size_inv:
         forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (modulo(p.queue_heap[qptr].front + p.queue_heap[qptr].size + p.queue_heap[qptr].capacity - bvOne, p.queue_heap[qptr].capacity) == p.queue_heap[qptr].rear));
+                (modulo(p.queue_heap[qptr].front + p.queue_heap[qptr].size + p.queue_heap[qptr].capacity - ONE, p.queue_heap[qptr].capacity) == p.queue_heap[qptr].rear));
     
     // All valid queues have a size between 0 and the capacity
     invariant size_in_bounds:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (bvZero <= p.queue_heap[qptr].size && p.queue_heap[qptr].size <= p.queue_heap[qptr].capacity)));
+                (ZERO <= p.queue_heap[qptr].size && p.queue_heap[qptr].size <= p.queue_heap[qptr].capacity)));
 
     // All valid queues have a front between 0 and the capacity (exclusive)
     invariant front_in_bounds:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (bvZero <= p.queue_heap[qptr].front && p.queue_heap[qptr].front < p.queue_heap[qptr].capacity)));
+                (ZERO <= p.queue_heap[qptr].front && p.queue_heap[qptr].front < p.queue_heap[qptr].capacity)));
 
     // All valid queues have a rear between 0 and the capacity (exclusive)
     invariant rear_in_bounds:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (bvZero <= p.queue_heap[qptr].rear && p.queue_heap[qptr].rear < p.queue_heap[qptr].capacity)));
+                (ZERO <= p.queue_heap[qptr].rear && p.queue_heap[qptr].rear < p.queue_heap[qptr].capacity)));
 
     // The beginning of the heaps are always less than the end
     invariant cint_heap_start_end: (p.cint_start <= p.cint_end);
     invariant queue_heap_start_end: (p.queue_start <= p.queue_end);
 
     next {
-        step' = step + 1bv32;
+        step' = step + 1;
         next(p);
     }
 
@@ -473,26 +474,6 @@ module main {
             p.queue_start,
             p.queue_end,
             p.op_in, p.qptr_in, p.capacity_in, p.item_out,
-            p.queue_heap[bvZero].size, p.queue_heap[bvZero].front, p.queue_heap[bvZero].rear, p.queue_heap[bvZero].capacity);
+            p.queue_heap[ZERO].size, p.queue_heap[ZERO].front, p.queue_heap[ZERO].rear, p.queue_heap[ZERO].capacity);
     }
 }
-
-// Prove inductive properties
-// module main {
-//     axiom (forall (qptr: queue_pointer_t) :: (0bv32 <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= 100bv32));
-
-//     invariant size_inv:
-//         ((step > 1bv32) ==>
-//             (modulo(p.queue_heap[0bv32].front + p.queue_heap[0bv32].size + p.queue_heap[0bv32].capacity - bvOne, p.queue_heap[0bv32].capacity) == p.queue_heap[0bv32].rear));
-    
-//     next {
-//         next(p);
-//     }
-
-//     control {
-//         v = induction(1);
-//         check;
-//         print_results;
-//         v.print_cex(p.queue_heap[0bv32].front, p.queue_heap[0bv32].rear, p.queue_heap[0bv32].size, p.queue_heap[0bv32].capacity, p.queue_heap[0bv32].array);
-//     }
-// }
