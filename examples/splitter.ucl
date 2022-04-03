@@ -1,0 +1,93 @@
+// `./uclid-0.9.5/bin/uclid splitter.ucl -s "z3 -in"`
+// If using synthesis, `./uclid-0.9.5/bin/uclid splitter.ucl -y "cvc5 --lang sygus"`
+// 
+// Based on Figure 1a of: Sharma et al. Simplifying Loop Invariant Generation Using Splitter Predicates. CAV '11.
+//
+// int main(int n, int m)
+// {
+//   if (n < 0 || m < 0 || m >= n) return 0;
+//   int x=0;
+//   int y=m;
+//   while(x<n) {
+//     x++;
+//     if(x>m) y++;
+//   }
+//   sassert(y==n);
+// }
+// 
+
+// While this is a synthetic example, it is representative of the loops found in
+// practice that require disjunctive invariants. Specifically, this example has
+// two important properties: 
+// 
+//  (a) The need for a disjunctive invariant arises from a particular
+//  conditional or conditionals in the loop body; in this case, the statement
+//  if (x > m). Not all conditionals imply that a disjunctive invariant is
+//  needed, but conditionals whose predicate is related to how many iterations
+//  the loop has executed, as in Fig. 1(a), usually do. For example, one of
+//  the more common patterns in practice is that the conditional causes the
+//  loop to do something different in its base (the first or first few
+//  iterations) and inductive cases (all subsequent iterations).
+
+//  (b) The conditionals in question exhibit a fixed number of phase
+//  transitions during execution. A phase is a sequence of iterations in which
+//  the conditional, if it is evaluated, always evaluates to the same value,
+//  either true or false. A phase transition occurs when the conditional
+//  evaluates to b in one iteration, and the next time it is evaluated, it
+//  evaluates to ¬b. In Fig. 1, the conditional test x > m has two phases and
+//  one phase transition: it is false for iterations 1-m, and true for
+//  iterations (m+1)-n.
+// 
+// In principle, there are many loops requiring disjunctive
+// invariants that do not satisfy conditions (a) and (b). However, it is our
+// experience that the vast majority of loops arising in practice that require a
+// disjunctive invariant do so because of conditionals with a fixed number of
+// phases. For example, we have manually inspected the 95 loops found in OpenSSH,
+// and found that exactly 9 of these loops require disjunctive invariants.
+// Furthermore, of these 9 loops, all but one 1 satisfies conditions (a) and (b)
+// above. Throughout this paper, we refer to loops satisfying conditions (a) and
+// (b) as multi-phase loops
+
+
+module main {
+  // Part 1: System Description.
+  var n, m, x, y : integer;
+
+  init {
+    assume(n > 0 && m > 0 && m < n);
+    x = 0;
+    y = m;
+  }
+
+  next {
+    if (x < n) {
+        x' = x + 1;
+        if (x' > m) {
+            y' = y + 1;
+        }
+    }
+  }
+
+  // Part 2: System Specification.
+  invariant sassert: x >= n ==> y == n;
+  invariant assumption: n > 0 && m > 0 && m < n;
+  invariant loop_inv: if (x > m) then (y == x) else (y == m);
+  
+
+  // // Part 4: (NEW) Synthesis Integration
+  // synthesis function 
+  //   h1(a : integer, b : integer, c : integer): boolean;
+  // synthesis function 
+  //   h2(a : integer, b : integer, c : integer): boolean;
+
+  // // get x > m directly from source code: it is the transition point
+  // invariant loop_inv: if (x > m) then h1(x, y, m) else h2(x, y, m);
+
+  // Part 3: Proof Script.
+  control {
+    v = induction;
+    check;
+    print_results;
+    v.print_cex;
+  }
+}
