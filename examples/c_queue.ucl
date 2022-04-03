@@ -45,6 +45,7 @@ module common {
     const ZERO: cint_t = 0;
     const ONE: cint_t  = 1;
     const TEN: cint_t  = 10;
+    const HUNDRED: cint_t  = 100;
     const THOUSAND: cint_t  = 1000;
     const INT_MIN: cint_t = 0x80000000;
 
@@ -95,37 +96,44 @@ module program {
     }
 
     // Queue field setters
-    procedure [inline] setQueueFieldFront(qptr: queue_pointer_t, _front: cint_t) {
+    procedure [inline] setQueueFieldFront(qptr: queue_pointer_t, _front: cint_t)
+    {
         var tmp_q: queue_t;
         tmp_q = queue_heap[qptr];
         tmp_q.front = _front;
         queue_heap[qptr] = tmp_q;
     }
-    procedure [inline] setQueueFieldRear(qptr: queue_pointer_t, _rear: cint_t) {
+    procedure [inline] setQueueFieldRear(qptr: queue_pointer_t, _rear: cint_t)
+    {
         var tmp_q: queue_t;
         tmp_q = queue_heap[qptr];
         tmp_q.rear = _rear;
         queue_heap[qptr] = tmp_q;
     }
-    procedure [inline] setQueueFieldSize(qptr: queue_pointer_t, _size: cint_t) {
+    procedure [inline] setQueueFieldSize(qptr: queue_pointer_t, _size: cint_t)
+    {
         var tmp_q: queue_t;
         tmp_q = queue_heap[qptr];
         tmp_q.size = _size;
         queue_heap[qptr] = tmp_q;
     }
-    procedure [inline] setQueueFieldCapacity(qptr: queue_pointer_t, _capacity: cint_t) {
+    procedure [inline] setQueueFieldCapacity(qptr: queue_pointer_t, _capacity: cint_t)
+    {
         var tmp_q: queue_t;
         tmp_q = queue_heap[qptr];
         tmp_q.capacity = _capacity;
         queue_heap[qptr] = tmp_q;
     }
-    procedure [inline] setQueueFieldArray(qptr: queue_pointer_t, _array: cint_pointer_t) {
+    procedure [inline] setQueueFieldArray(qptr: queue_pointer_t, _array: cint_pointer_t)
+    {
         var tmp_q: queue_t;
         tmp_q = queue_heap[qptr];
         tmp_q.array = _array;
         queue_heap[qptr] = tmp_q;
     }
-    procedure [inline] setQueueFieldArrayIthElement(qptr: queue_pointer_t, i: cint_pointer_t, value: cint_t) {
+    procedure [inline] setQueueFieldArrayIthElement(
+        qptr: queue_pointer_t, i: cint_pointer_t, value: cint_t)
+    {
         call setCIntArrayIth(queue_heap[qptr].array, i, value);
     }
 
@@ -275,7 +283,9 @@ module program {
             // Return
         } else {
             // queue->rear = (queue->rear + 1) % queue->capacity;
-            call setQueueFieldRear(queue, modulo(getQueueFieldRear(queue) + ONE, getQueueFieldCapacity(queue)));
+            call setQueueFieldRear(queue,
+                    modulo(getQueueFieldRear(queue) + ONE,
+                           getQueueFieldCapacity(queue)));
             // queue->array[queue->rear] = item;
             call setQueueFieldArrayIthElement(queue, getQueueFieldRear(queue), item);
             // queue->size = queue->size + 1;
@@ -312,7 +322,9 @@ module program {
             // return item;
             item = getCIntArrayIth(getQueueFieldArray(queue), getQueueFieldFront(queue));
             // queue->front = (queue->front + 1) % queue->capacity;
-            call setQueueFieldFront(queue, modulo(getQueueFieldFront(queue) + ONE, getQueueFieldCapacity(queue)));
+            call setQueueFieldFront(queue,
+                    modulo(getQueueFieldFront(queue) + ONE,
+                           getQueueFieldCapacity(queue)));
             // queue->size = queue->size - 1;
             call setQueueFieldSize(queue, getQueueFieldSize(queue) - ONE);
         }
@@ -397,64 +409,50 @@ module main {
                         qptr_out: (qptr_out));
 }
 
-// Prove BMC properties
-// module main {
-//     // Item out is 1 because isEmpty returns 1
-//     invariant firstIsEmpty: ((step > 1bv32) ==> p.item_out == ONE);
-    
-//     next {
-//         step' = step + 1bv32;
-//         // After first iteration, we check if the size is empty
-//         op_in' = isEmptyOp;
-//         qptr_in' = ZERO;
-//         next(p);
-//     }
-
-//     control {
-//         v = bmc(2);
-//         check;
-//         print_results;
-//         v.print_cex(p.queue_heap[0bv32].size, p.op_in, p.item_out, step);
-//     }
-// }
-
 // Prove inductive properties
 module main {
-    // Restrict the allocation amount to 10
+    // Restrict the allocation amount to 1000
     axiom (ZERO <= p.queue_end && p.queue_end < THOUSAND);
     axiom (ZERO <= p.cint_end && p.cint_end < THOUSAND);
     // Capacity is always positive
-    axiom (ZERO < capacity_in && capacity_in < TEN);
+    axiom (ZERO < capacity_in && capacity_in < HUNDRED);
 
-    // The capacity is always between 0 and 10 for all queues
+    // The capacity is always between 0 and 100 for all queues
     invariant capacity_bound:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (ZERO <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= TEN)));
+                (ZERO <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= HUNDRED)));
     
     // For all valid queues, we have the invariant (front + size + capacity - 1 % capacity) == rear
     invariant size_inv:
         forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (modulo(p.queue_heap[qptr].front + p.queue_heap[qptr].size + p.queue_heap[qptr].capacity - ONE, p.queue_heap[qptr].capacity) == p.queue_heap[qptr].rear));
+                (modulo(p.queue_heap[qptr].front +
+                        p.queue_heap[qptr].size +
+                        p.queue_heap[qptr].capacity -
+                        ONE,
+                        p.queue_heap[qptr].capacity) == p.queue_heap[qptr].rear));
     
     // All valid queues have a size between 0 and the capacity
     invariant size_in_bounds:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (ZERO <= p.queue_heap[qptr].size && p.queue_heap[qptr].size <= p.queue_heap[qptr].capacity)));
+                (ZERO <= p.queue_heap[qptr].size &&
+                 p.queue_heap[qptr].size <= p.queue_heap[qptr].capacity)));
 
     // All valid queues have a front between 0 and the capacity (exclusive)
     invariant front_in_bounds:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (ZERO <= p.queue_heap[qptr].front && p.queue_heap[qptr].front < p.queue_heap[qptr].capacity)));
+                (ZERO <= p.queue_heap[qptr].front &&
+                 p.queue_heap[qptr].front < p.queue_heap[qptr].capacity)));
 
     // All valid queues have a rear between 0 and the capacity (exclusive)
     invariant rear_in_bounds:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (ZERO <= p.queue_heap[qptr].rear && p.queue_heap[qptr].rear < p.queue_heap[qptr].capacity)));
+                (ZERO <= p.queue_heap[qptr].rear &&
+                 p.queue_heap[qptr].rear < p.queue_heap[qptr].capacity)));
 
     // The beginning of the heaps are always less than the end
     invariant cint_heap_start_end: (p.cint_start <= p.cint_end);
@@ -474,6 +472,7 @@ module main {
             p.queue_start,
             p.queue_end,
             p.op_in, p.qptr_in, p.capacity_in, p.item_out,
-            p.queue_heap[ZERO].size, p.queue_heap[ZERO].front, p.queue_heap[ZERO].rear, p.queue_heap[ZERO].capacity);
+            p.queue_heap[ZERO].size, p.queue_heap[ZERO].front,
+            p.queue_heap[ZERO].rear, p.queue_heap[ZERO].capacity);
     }
 }
