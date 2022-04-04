@@ -1,0 +1,33 @@
+// `uclid splitter_slide35.ucl -s "z3 -in"`
+
+module main {
+  // Part 1: System Description.
+  var n, m, x, y : integer;
+
+  init {
+    assume(n > 0 && m > 0 && m < n);
+    x = 0;
+    y = m;
+  }
+
+  next {
+    if (x < n) {
+        x' = x + 1;
+        if (x' > m) {
+            y' = y + 1;
+        }
+    }
+  }
+
+  // Part 2: System Specification.
+  invariant sassert: x >= n ==> y == n;
+  invariant assumption: n > 0 && m > 0 && m < n;
+
+  // Part 3: Proof Script.
+  control {
+    v = induction;
+    check;
+    print_results;
+    v.print_cex;
+  }
+}
