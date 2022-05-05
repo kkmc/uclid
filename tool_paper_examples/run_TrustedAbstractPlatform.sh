@@ -16,11 +16,11 @@ cd ../../
 
 echo "Cloning Boogie TAP models repo ..."
 #git clone git@github.com:0tcb/TAP.git
-git submodule update --init --recursive
+#git submodule update --init --recursive
 
 echo "Verifying TAP models in Boogie ..."
 cd TAP/AbstractPlatform
-time boogie CPU.bpl CPUImpl.bpl Types.bpl ../Common/Cache.bpl ../Common/CacheImpl.bpl ../Common/Common.bpl ../Common/Types.bpl
+time ../../boogie/BoogieDriver CPU.bpl CPUImpl.bpl Types.bpl ../Common/Cache.bpl ../Common/CacheImpl.bpl ../Common/Common.bpl ../Common/Types.bpl
 
 echo "Verifying integrity proof model in Boogie ..."
-time boogie IntegrityProof.bpl CPU.bpl CPUImpl.bpl Types.bpl ../Common/Cache.bpl ../Common/CacheImpl.bpl ../Common/Common.bpl ../Common/Types.bpl ProofCommon.bpl /proc:ProveIntegrity
+time ../../boogie/BoogieDriver IntegrityProof.bpl CPU.bpl CPUImpl.bpl Types.bpl ../Common/Cache.bpl ../Common/CacheImpl.bpl ../Common/Common.bpl ../Common/Types.bpl ProofCommon.bpl /proc:ProveIntegrity

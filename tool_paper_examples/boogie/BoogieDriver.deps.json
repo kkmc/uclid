@@ -1,0 +1,463 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "BoogieDriver/2.15.0": {
+        "dependencies": {
+          "Boogie.AbstractInterpretation": "2.15.0",
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0",
+          "Boogie.ExecutionEngine": "2.15.0",
+          "Boogie.Graph": "2.15.0",
+          "Boogie.Houdini": "2.15.0",
+          "Boogie.Predication": "2.15.0",
+          "Boogie.Provers.SMTLib": "2.15.0",
+          "Boogie.VCExpr": "2.15.0",
+          "Boogie.VCGeneration": "2.15.0",
+          "StyleCop.Analyzers": "1.1.118"
+        },
+        "runtime": {
+          "BoogieDriver.dll": {}
+        }
+      },
+      "Microsoft.Bcl.AsyncInterfaces/6.0.0": {
+        "runtime": {
+          "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "Microsoft.Win32.SystemEvents/6.0.0": {
+        "runtime": {
+          "lib/net6.0/Microsoft.Win32.SystemEvents.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net6.0/Microsoft.Win32.SystemEvents.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "StyleCop.Analyzers/1.1.118": {},
+      "System.Configuration.ConfigurationManager/6.0.0": {
+        "dependencies": {
+          "System.Security.Cryptography.ProtectedData": "6.0.0",
+          "System.Security.Permissions": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.Configuration.ConfigurationManager.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "System.Drawing.Common/6.0.0": {
+        "dependencies": {
+          "Microsoft.Win32.SystemEvents": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.Drawing.Common.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/unix/lib/net6.0/System.Drawing.Common.dll": {
+            "rid": "unix",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          },
+          "runtimes/win/lib/net6.0/System.Drawing.Common.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "System.Linq.Async/6.0.1": {
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.Linq.Async.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.1.35981"
+          }
+        }
+      },
+      "System.Runtime.Caching/6.0.0": {
+        "dependencies": {
+          "System.Configuration.ConfigurationManager": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.Runtime.Caching.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net6.0/System.Runtime.Caching.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "System.Security.AccessControl/6.0.0": {},
+      "System.Security.Cryptography.ProtectedData/6.0.0": {
+        "runtime": {
+          "lib/net6.0/System.Security.Cryptography.ProtectedData.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net6.0/System.Security.Cryptography.ProtectedData.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "System.Security.Permissions/6.0.0": {
+        "dependencies": {
+          "System.Security.AccessControl": "6.0.0",
+          "System.Windows.Extensions": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.Security.Permissions.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "System.Windows.Extensions/6.0.0": {
+        "dependencies": {
+          "System.Drawing.Common": "6.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/System.Windows.Extensions.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net6.0/System.Windows.Extensions.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
+      "Boogie.AbstractInterpretation/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.AbstractInterpretation.dll": {}
+        }
+      },
+      "Boogie.BaseTypes/2.15.0": {
+        "dependencies": {
+          "Boogie.CodeContractsExtender": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.BaseTypes.dll": {}
+        }
+      },
+      "Boogie.CodeContractsExtender/2.15.0": {
+        "runtime": {
+          "Boogie.CodeContractsExtender.dll": {}
+        }
+      },
+      "Boogie.Concurrency/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0",
+          "Boogie.Graph": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.Concurrency.dll": {}
+        }
+      },
+      "Boogie.Core/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Graph": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.Core.dll": {}
+        }
+      },
+      "Boogie.ExecutionEngine/2.15.0": {
+        "dependencies": {
+          "Boogie.AbstractInterpretation": "2.15.0",
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Concurrency": "2.15.0",
+          "Boogie.Core": "2.15.0",
+          "Boogie.Graph": "2.15.0",
+          "Boogie.Houdini": "2.15.0",
+          "Boogie.Model": "2.15.0",
+          "Boogie.Predication": "2.15.0",
+          "Boogie.VCGeneration": "2.15.0",
+          "System.Runtime.Caching": "6.0.0"
+        },
+        "runtime": {
+          "Boogie.ExecutionEngine.dll": {}
+        }
+      },
+      "Boogie.Graph/2.15.0": {
+        "dependencies": {
+          "Boogie.CodeContractsExtender": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.Graph.dll": {}
+        }
+      },
+      "Boogie.Houdini/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0",
+          "Boogie.Graph": "2.15.0",
+          "Boogie.Model": "2.15.0",
+          "Boogie.Predication": "2.15.0",
+          "Boogie.Provers.SMTLib": "2.15.0",
+          "Boogie.VCExpr": "2.15.0",
+          "Boogie.VCGeneration": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.Houdini.dll": {}
+        }
+      },
+      "Boogie.Model/2.15.0": {
+        "dependencies": {
+          "Boogie.CodeContractsExtender": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.Model.dll": {}
+        }
+      },
+      "Boogie.Predication/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0",
+          "Boogie.Graph": "2.15.0",
+          "Boogie.VCGeneration": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.Predication.dll": {}
+        }
+      },
+      "Boogie.Provers.SMTLib/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0",
+          "Boogie.Graph": "2.15.0",
+          "Boogie.Model": "2.15.0",
+          "Boogie.VCExpr": "2.15.0",
+          "System.Linq.Async": "6.0.1"
+        },
+        "runtime": {
+          "Boogie.Provers.SMTLib.dll": {}
+        }
+      },
+      "Boogie.VCExpr/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.VCExpr.dll": {}
+        }
+      },
+      "Boogie.VCGeneration/2.15.0": {
+        "dependencies": {
+          "Boogie.BaseTypes": "2.15.0",
+          "Boogie.CodeContractsExtender": "2.15.0",
+          "Boogie.Core": "2.15.0",
+          "Boogie.Graph": "2.15.0",
+          "Boogie.Model": "2.15.0",
+          "Boogie.Provers.SMTLib": "2.15.0",
+          "Boogie.VCExpr": "2.15.0"
+        },
+        "runtime": {
+          "Boogie.VCGeneration.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "BoogieDriver/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Bcl.AsyncInterfaces/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UcSjPsst+DfAdJGVDsu346FX0ci0ah+lw3WRtn18NUwEqRt70HaOQ7lI72vy3+1LxtqI3T5GWwV39rQSrCzAeg==",
+      "path": "microsoft.bcl.asyncinterfaces/6.0.0",
+      "hashPath": "microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512"
+    },
+    "Microsoft.Win32.SystemEvents/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hqTM5628jSsQiv+HGpiq3WKBl2c8v1KZfby2J6Pr7pEPlK9waPdgEO6b8A/+/xn/yZ9ulv8HuqK71ONy2tg67A==",
+      "path": "microsoft.win32.systemevents/6.0.0",
+      "hashPath": "microsoft.win32.systemevents.6.0.0.nupkg.sha512"
+    },
+    "StyleCop.Analyzers/1.1.118": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Onx6ovGSqXSK07n/0eM3ZusiNdB6cIlJdabQhWGgJp3Vooy9AaLS/tigeybOJAobqbtggTamoWndz72JscZBvw==",
+      "path": "stylecop.analyzers/1.1.118",
+      "hashPath": "stylecop.analyzers.1.1.118.nupkg.sha512"
+    },
+    "System.Configuration.ConfigurationManager/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-7T+m0kDSlIPTHIkPMIu6m6tV6qsMqJpvQWW2jIc2qi7sn40qxFo0q+7mEQAhMPXZHMKnWrnv47ntGlM/ejvw3g==",
+      "path": "system.configuration.configurationmanager/6.0.0",
+      "hashPath": "system.configuration.configurationmanager.6.0.0.nupkg.sha512"
+    },
+    "System.Drawing.Common/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NfuoKUiP2nUWwKZN6twGqXioIe1zVD0RIj2t976A+czLHr2nY454RwwXs6JU9Htc6mwqL6Dn/nEL3dpVf2jOhg==",
+      "path": "system.drawing.common/6.0.0",
+      "hashPath": "system.drawing.common.6.0.0.nupkg.sha512"
+    },
+    "System.Linq.Async/6.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-0YhHcaroWpQ9UCot3Pizah7ryAzQhNvobLMSxeDIGmnXfkQn8u5owvpOH0K6EVB+z9L7u6Cc4W17Br/+jyttEQ==",
+      "path": "system.linq.async/6.0.1",
+      "hashPath": "system.linq.async.6.0.1.nupkg.sha512"
+    },
+    "System.Runtime.Caching/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-E0e03kUp5X2k+UAoVl6efmI7uU7JRBWi5EIdlQ7cr0NpBGjHG4fWII35PgsBY9T4fJQ8E4QPsL0rKksU9gcL5A==",
+      "path": "system.runtime.caching/6.0.0",
+      "hashPath": "system.runtime.caching.6.0.0.nupkg.sha512"
+    },
+    "System.Security.AccessControl/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AUADIc0LIEQe7MzC+I0cl0rAT8RrTAKFHl53yHjEUzNVIaUlhFY11vc2ebiVJzVBuOzun6F7FBA+8KAbGTTedQ==",
+      "path": "system.security.accesscontrol/6.0.0",
+      "hashPath": "system.security.accesscontrol.6.0.0.nupkg.sha512"
+    },
+    "System.Security.Cryptography.ProtectedData/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rp1gMNEZpvx9vP0JW0oHLxlf8oSiQgtno77Y4PLUBjSiDYoD77Y8uXHr1Ea5XG4/pIKhqAdxZ8v8OTUtqo9PeQ==",
+      "path": "system.security.cryptography.protecteddata/6.0.0",
+      "hashPath": "system.security.cryptography.protecteddata.6.0.0.nupkg.sha512"
+    },
+    "System.Security.Permissions/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-T/uuc7AklkDoxmcJ7LGkyX1CcSviZuLCa4jg3PekfJ7SU0niF0IVTXwUiNVP9DSpzou2PpxJ+eNY2IfDM90ZCg==",
+      "path": "system.security.permissions/6.0.0",
+      "hashPath": "system.security.permissions.6.0.0.nupkg.sha512"
+    },
+    "System.Windows.Extensions/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-IXoJOXIqc39AIe+CIR7koBtRGMiCt/LPM3lI+PELtDIy9XdyeSrwXFdWV9dzJ2Awl0paLWUaknLxFQ5HpHZUog==",
+      "path": "system.windows.extensions/6.0.0",
+      "hashPath": "system.windows.extensions.6.0.0.nupkg.sha512"
+    },
+    "Boogie.AbstractInterpretation/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.BaseTypes/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.CodeContractsExtender/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.Concurrency/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.Core/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.ExecutionEngine/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.Graph/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.Houdini/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.Model/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.Predication/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.Provers.SMTLib/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.VCExpr/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Boogie.VCGeneration/2.15.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
