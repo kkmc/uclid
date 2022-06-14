@@ -7,9 +7,9 @@ module common {
     // TYPES
 
     // C integer type
-    type cint_t = integer;
+    type cint_t = bv16;
     // C integer pointer type 
-    type cint_pointer_t = integer;
+    type cint_pointer_t = bv16;
 
     /* A structure to represent a queue
     struct Queue {
@@ -26,7 +26,7 @@ module common {
         array: cint_pointer_t
     };
     // queue pointer type
-    type queue_pointer_t = integer;
+    type queue_pointer_t = bv16;
 
     // Operations of the program
     type op_t = enum {
@@ -42,12 +42,14 @@ module common {
     // ========================================================================================= //
     // CONSTANTS
 
-    const ZERO: cint_t = 0;
-    const ONE: cint_t  = 1;
-    const TEN: cint_t  = 10;
-    const HUNDRED: cint_t  = 100;
-    const THOUSAND: cint_t  = 1000;
-    const INT_MIN: cint_t = 0x80000000;
+    const ZERO: cint_t = 0bv16;
+    const ONE: cint_t  = 1bv16;
+    const HUNDRED: cint_t  = 100bv16;
+    const TEN: cint_t  = 10bv16;
+    const FIFTY: cint_t  = 50bv16;
+    const TWOHUNDRED: cint_t  = 100bv16;
+    const INT_MIN: cint_t = 0x8000bv16;
+    const INT_MAX: cint_t = 0x7FFFbv16;
 
     // ========================================================================================= //
     // DEFINE MACROS
@@ -182,11 +184,11 @@ module program {
     // PROGRAM TRANSITION RELATION
     next {
         case
-            (op_in == createQueueOp) : { call (qptr_out') = queue_createQueue(capacity_in); }
-            (op_in == isFullOp)      : { call (item_out') = queue_isFull(qptr_in); }
-            (op_in == isEmptyOp)     : { call (item_out') = queue_isEmpty(qptr_in); }
-            (op_in == enqueueOp)     : { call ()          = queue_enqueue(qptr_in, item_in); }
-            (op_in == dequeueOp)     : { call (item_out') = queue_dequeue(qptr_in); }
+//            (op_in == createQueueOp) : { call (qptr_out') = queue_createQueue(capacity_in); }
+//            (op_in == isFullOp)      : { call (item_out') = queue_isFull(qptr_in); }
+//            (op_in == isEmptyOp)     : { call (item_out') = queue_isEmpty(qptr_in); }
+//            (op_in == enqueueOp)     : { call ()          = queue_enqueue(qptr_in, item_in); }
+//            (op_in == dequeueOp)     : { call (item_out') = queue_dequeue(qptr_in); }
             (op_in == frontOp)       : { call (item_out') = queue_front(qptr_in); }
             (op_in == rearOp)        : { call (item_out') = queue_rear(qptr_in); }
         esac
@@ -395,11 +397,8 @@ module main {
     var qptr: queue_pointer_t;
 
     init {
-        step = 0;
         op_in = createQueueOp;
     }
-
-    var step: integer;
 
     instance p: program(op_in: (op_in),
                         capacity_in: (capacity_in),
@@ -411,22 +410,28 @@ module main {
 
 // Prove inductive properties
 module main {
-    // Restrict the allocation amount to 1000
-    axiom (ZERO <= p.queue_end && p.queue_end < THOUSAND);
-    axiom (ZERO <= p.cint_end && p.cint_end < THOUSAND);
-    // Capacity is always positive
+    // We restrict the allocation pointer ranges; we ignore errors due to memory allocation
+    axiom (ZERO <= p.queue_end && p.queue_end < INT_MAX);
+    axiom (ZERO <= p.cint_end && p.cint_end < INT_MAX);
+    
+    // We also assume that the capacity is always positive whenever we create a new queue
+    //axiom (ZERO < capacity_in && capacity_in < TEN);
     axiom (ZERO < capacity_in && capacity_in < HUNDRED);
+    
+    // Assume we are only modifying the ZERO queue
+    // axiom qptr == ZERO;
 
     // The capacity is always between 0 and 100 for all queues
     invariant capacity_bound:
         (forall (qptr: queue_pointer_t) ::
             ((p.queue_start <= qptr && qptr < p.queue_end) ==>
-                (ZERO <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity <= HUNDRED)));
+    //            (ZERO <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity < TEN)));
+                (ZERO <= p.queue_heap[qptr].capacity && p.queue_heap[qptr].capacity < HUNDRED)));
     
     // For all valid queues, we have the invariant (front + size + capacity - 1 % capacity) == rear
     invariant size_inv:
         forall (qptr: queue_pointer_t) ::
-            ((p.queue_start <= qptr && qptr < p.queue_end) ==>
+            ((p.queue_start <= qptr && qptr < p.queue_end && qptr == ZERO) ==>
                 (modulo(p.queue_heap[qptr].front +
                         p.queue_heap[qptr].size +
                         p.queue_heap[qptr].capacity -
@@ -459,7 +464,6 @@ module main {
     invariant queue_heap_start_end: (p.queue_start <= p.queue_end);
 
     next {
-        step' = step + 1;
         next(p);
     }
 
@@ -468,11 +472,12 @@ module main {
         check;
         print_results;
         v.print_cex(
-            step,
             p.queue_start,
             p.queue_end,
             p.op_in, p.qptr_in, p.capacity_in, p.item_out,
             p.queue_heap[ZERO].size, p.queue_heap[ZERO].front,
-            p.queue_heap[ZERO].rear, p.queue_heap[ZERO].capacity);
+            p.queue_heap[ZERO].rear, p.queue_heap[ZERO].capacity,
+            p.queue_heap[qptr].front + p.queue_heap[qptr].size + p.queue_heap[qptr].capacity - ONE,
+            (p.queue_heap[qptr].front + p.queue_heap[qptr].size + p.queue_heap[qptr].capacity - ONE) - (p.queue_heap[qptr].capacity*((p.queue_heap[qptr].front + p.queue_heap[qptr].size + p.queue_heap[qptr].capacity - ONE)/p.queue_heap[qptr].capacity)));
     }
 }
